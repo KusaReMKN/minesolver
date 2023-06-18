@@ -45,8 +45,104 @@ noop()
 	/* Nothing to do */
 }
 
+async function
+solver_1()
+{
+	console.time();
+	let rerun;
+	let prev = m.getMap().map(r => r.map(_ => '#'));
+	let area = [];
+	let unsolve = [];
+	do {
+		rerun = false;
+
+		/* まずは新しい数字セルを新人さんとして登録 */
+		const map = m.getMap();
+		const newbie = [];
+		map.forEach((r, i) => r.forEach((e, j) =>
+			/[1-8]/.test(e) && prev[i][j] === '#' && newbie.push({ x: j, y: i })
+		));
+		if (newbie.length === 0)
+			break;
+		//prev = map;
+
+		/* 新人さんの周囲にある地雷領域を記録 */
+		newbie.forEach(e => {
+			const s = new Set();
+			for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++)
+				if (/[#F]/.test(map[e.y + i]?.[e.x + j]))
+					s.add(`${e.x+j},${e.y+i}`);
+			area.push({ n: +map[e.y][e.x], s });
+		});
+
+		/* 地雷領域を整理 */
+		area.push({ n: -1, s: null });	/* 番兵 */
+		let elem;
+		while ((elem = area.shift()).s !== null) {
+			const temp = [];
+			area.forEach(e => {
+				if (e.n === -1) {
+					temp.push(e);
+					return;
+				}
+				const has = [...elem.s].reduce(
+					(r, k) => e.s.has(k) && r,
+					true
+				);
+				if (has) {
+					let k = e;
+					const ts = new Set(k.s.values());
+					elem.s.forEach(e => ts.delete(e));
+					if (ts.size === 0)
+						return;
+					const nn = k.n - elem.n;
+					if (nn !== 1 && (nn === 0 || nn === ts.size)) {
+						ts.forEach(e => temp.unshift(
+							{ n: Math.sign(nn), s: new Set([e]) }
+						));
+					} else {
+						temp.push({ n: k.n - elem.n, s: ts });
+					}
+				} else {
+					temp.push(e);
+				}
+			});
+			temp.push(elem);
+			area = temp;
+		}
+
+		area.forEach(e => {
+			if (e.n === 1 && e.s.size === 1) {
+				const c = { x: -1, y: -1 };
+				e.s.forEach(e => e.split(',').map(e => +e).forEach((e, i) =>
+					i ? c.y = e : c.x = e
+				));
+				map[c.y][c.x] !== 'F' && m.flag(c.x, c.y);
+			}
+			if (e.n === 0) {
+				const c = { x: -1, y: -1 };
+				e.s.forEach(e => e.split(',').map(e => +e).forEach((e, i) =>
+					i ? c.y = e : c.x = e
+				));
+				m.open(c.x, c.y);
+				rerun = true;
+			}
+		});
+		await new Promise(r => setTimeout(r));
+		area = area.filter(e => e.n > 0);
+		unsolve = area.filter(e => e.s.size !== 1);
+	} while (rerun);
+	console.timeEnd();
+	if (unsolve.length > 0) {
+		console.table(unsolve.map(e => [ e.n, [...e.s] ]));
+	} else {
+		console.log('solved');
+	}
+}
+
 const solverTab = {
 	'noop': noop,
+	'open': solver_1,
 };
 let solverName = 'noop';
 
@@ -121,3 +217,5 @@ useSolver()
 {
 	solverName = solver.method.value;
 }
+solver.addEventListener('submit', useSolver);
+solver.addEventListener('submit', e => e.preventDefault());
