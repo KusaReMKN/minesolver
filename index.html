@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minesweeper solver</title>
+<link rel="stylesheet" href="./css/minesolver.css">
+<script src="./js/minesweeper.js" defer></script>
+<script src="./js/minesolver.js" defer></script>
+</head>
+<body>
+<h1>Minesweeper solver</h1>
+<form id="minesweeper">
+<fieldset>
+<legend>Minesweeper</legend>
+<ul class="compact no-marker">
+<li>
+<input type="radio" id="diff_8x8" name="difficulty" value="8,8;10">
+<label for="diff_8x8">Beginner</label>
+</li>
+<li>
+<input type="radio" id="diff_16x16" name="difficulty" value="16,16;40">
+<label for="diff_16x16">Intermediate</label>
+</li>
+<li>
+<input type="radio" id="diff_32x16" name="difficulty" value="32,16;99">
+<label for="diff_32x16">Expert</label>
+</li>
+</ul>
+<hr>
+<div>
+<input type="submit" value="New Game">
+</div>
+</fieldset>
+</form>
+<form id="solver">
+<fieldset>
+<legend>Solver</legend>
+<ul class="compact no-marker">
+<li>
+<input type="radio" id="solv_noop" name="method" value="noope">
+<label for="solv_noop">自動で解決しない</label>
+</li>
+</ul>
+<hr>
+<div>
+<input type="submit" value="Use this solver">
+</div>
+</fieldset>
+</form>
+<hr>
+<div id="remains"></div>
+<canvas id="canvas"></canvas>
+</body>
+</html>

@@ -1,0 +1,9 @@
+.compact {
+	margin-block: unset;
+}
+.no-marker {
+	padding-inline: unset;
+}
+.no-marker li {
+	list-style: none;
+}
